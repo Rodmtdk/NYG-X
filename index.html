@@ -3,157 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presse-Agrumes Électrique - Documentation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.8;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-        header {
-            background: #0078d4;
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        main {
-            margin: 40px auto;
-            padding: 20px;
-            max-width: 900px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #0056b3;
-            border-bottom: 2px solid #0078d4;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
-        table th {
-            background: #0078d4;
-            color: #fff;
-        }
-        .image-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .image-container img {
-            max-width: 80%;
-            height: auto;
-            border: 3px solid #ddd;
-            border-radius: 5px;
-        }
-        footer {
-            text-align: center;
-            padding: 15px 0;
-            background: #0078d4;
-            color: #fff;
-            position: relative;
-        }
-        footer p {
-            margin: 0;
-            font-size: 0.9rem;
-        }
-    </style>
+    <title>Espace Membre - NYG-X</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/framer-motion@6.5.1/dist/framer-motion.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white transition-colors duration-300">
+    <header class="p-6 bg-gray-800 shadow-lg">
+        <h1 class="text-3xl font-bold">Bienvenue dans l'espace membre NYG-X</h1>
+        <p class="mt-2">Accédez à votre formation et aux ressources exclusives.</p>
+        <button id="theme-toggle" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded">Changer de thème</button>
+        <button id="logout" class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Déconnexion</button>
+    </header>
+    
+    <main class="p-6">
+        <section id="content" class="mb-10">
+            <h2 class="text-2xl font-semibold">Contenu Exclusif</h2>
+            <p class="mt-2">Voici votre formation sur l'automatisation.</p>
+            <a href="formation.pdf" download class="mt-4 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Télécharger la formation</a>
+        </section>
+        
+        <section id="moderator-panel" class="bg-gray-800 p-6 rounded shadow-lg">
+            <h2 class="text-2xl font-semibold">Panel de Modération</h2>
+            <div class="flex mt-4">
+                <input type="text" id="filter-user" placeholder="Rechercher un utilisateur..." class="flex-grow p-2 rounded-l bg-gray-700 border border-gray-600">
+                <button id="filter-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-r">Filtrer</button>
+            </div>
+            <ul id="user-list" class="mt-4"></ul>
+            <div class="mt-4">
+                <button id="prev-page" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Précédent</button>
+                <button id="next-page" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Suivant</button>
+                <span id="pagination-info" class="ml-4"></span>
+            </div>
 
-<header>
-    <h1>Documentation - Presse-Agrumes Électrique</h1>
-</header>
+            <h3 class="mt-6 font-semibold">Demandes de Révision de Bannissement <span id="new-requests-badge" class="text-red-500"></span></h3>
+            <ul id="ban-requests" class="mt-2"></ul>
 
-<main>
-    <h2>1. Introduction</h2>
-    <p>Ce projet consiste à concevoir un presse-agrumes électrique optimisé, compact, économique et performant.</p>
+            <h3 class="mt-6 font-semibold">Tableau de Bord en Temps Réel</h3>
+            <canvas id="dashboardChart" class="mt-4"></canvas>
+        </section>
+    </main>
 
-    <h2>2. Liste des Composants</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Composant</th>
-                <th>Description</th>
-                <th>Fournisseur</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Moteur 500W</td>
-                <td>Moteur AC 230V, adapté pour presse-agrumes</td>
-                <td><a href="https://fr.rs-online.com/web/c/moteurs/moteurs-ac/" target="_blank">RS Components</a></td>
-            </tr>
-            <tr>
-                <td>Interrupteur étanche</td>
-                <td>Interrupteur à bascule ON/OFF</td>
-                <td><a href="https://fr.rs-online.com/web/c/interrupteurs/interrupteurs-a-bascule/" target="_blank">RS Components</a></td>
-            </tr>
-            <tr>
-                <td>Fils électriques</td>
-                <td>Câblage en cuivre avec isolation silicone</td>
-                <td><a href="https://fr.rs-online.com/web/c/cables-fils/fils-electriques/" target="_blank">RS Components</a></td>
-            </tr>
-            <tr>
-                <td>Cône extracteur</td>
-                <td>Cône en inox, conçu pour maximiser l'extraction</td>
-                <td><a href="https://www.norelem.fr/fr/fr/Produits/THE-BIG-GREEN-BOOK/norelem-fixe/03000-Elements-de-centrage/03010-Cones-de-centrage.html" target="_blank">Norelem</a></td>
-            </tr>
-            <tr>
-                <td>Filtre inox</td>
-                <td>Filtre en acier inoxydable avec tamis</td>
-                <td><a href="https://www.norelem.fr/fr/fr/Produits/THE-BIG-GREEN-BOOK/norelem-fixe/02000-Elements-de-filtration/02010-Filtres-en-acier-inoxydable.html" target="_blank">Norelem</a></td>
-            </tr>
-        </tbody>
-    </table>
+    <script>
+        $(document).ready(function() {
+            const socket = io();
+            const token = localStorage.getItem('jwtToken');
+            if (!token) window.location.href = 'login.html';
 
-    <h2>3. Schéma Mécanique</h2>
-    <div class="image-container">
-        <img src="schema-mecanique.png" alt="Schéma mécanique du presse-agrumes">
-    </div>
+            $.ajaxSetup({ headers: { 'Authorization': 'Bearer ' + token } });
 
-    <h2>4. Schéma Électrique</h2>
-    <div class="image-container">
-        <img src="schema-electrique.png" alt="Schéma électrique du presse-agrumes">
-    </div>
+            $('#logout').click(() => {
+                localStorage.removeItem('jwtToken');
+                window.location.href = 'index.html';
+            });
 
-    <h2>5. Téléchargement de l'Assemblage 3D</h2>
-    <div class="image-container">
-        <a href="sandbox:/mnt/data/presse_agrumes_complete_assembly.stl" download>
-            <button style="padding: 10px 20px; font-size: 16px; background-color: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Télécharger le modèle 3D (STL)
-            </button>
-        </a>
-    </div>
+            $('#theme-toggle').click(() => {
+                $('body').toggleClass('bg-gray-900 bg-gray-100');
+                $('body').toggleClass('text-white text-gray-900');
+            });
 
-    <h2>6. Étapes d’Assemblage</h2>
-    <ul>
-        <li><strong>Fixation du moteur :</strong> Placez le moteur dans la base et fixez-le solidement.</li>
-        <li><strong>Installation du câblage :</strong> Reliez l'interrupteur et l'alimentation électrique.</li>
-        <li><strong>Montage du cône extracteur :</strong> Vissez le cône sur l'axe du moteur.</li>
-        <li><strong>Ajout du filtre :</strong> Placez le filtre sur le cône extracteur.</li>
-        <li><strong>Fixation du récipient :</strong> Positionnez le collecteur sous le filtre.</li>
-    </ul>
+            let currentPage = 1;
 
-    <h2>7. Conclusion</h2>
-    <p>Ce presse-agrumes électrique offre un rendement optimal avec une conception robuste et accessible.</p>
-</main>
+            function loadUsers(filter = "", page = 1) {
+                $.get(`http://localhost:3000/get-users?filter=${filter}&page=${page}&limit=10`, (response) => {
+                    $('#user-list').empty();
+                    response.users.forEach(user => {
+                        $('#user-list').append(`<li class='mt-2'>${user.email} - <button class='ban-user text-red-400' data-email='${user.email}'>🚫 Bannir</button> <button class='warn-user text-yellow-400' data-email='${user.email}'>⚠️ Avertir</button></li>`);
+                    });
+                    $('#pagination-info').text(`Page ${response.page} sur ${response.totalPages}`);
+                    currentPage = response.page;
+                });
+            }
 
-<footer>
-    <p>&copy; 2025 - Projet Presse-Agrumes Électrique</p>
-</footer>
+            $('#filter-btn').click(() => {
+                const filterValue = $('#filter-user').val();
+                loadUsers(filterValue, 1);
+            });
 
+            $('#prev-page').click(() => {
+                if (currentPage > 1) loadUsers($('#filter-user').val(), currentPage - 1);
+            });
+
+            $('#next-page').click(() => {
+                loadUsers($('#filter-user').val(), currentPage + 1);
+            });
+
+            function loadBanRequests() {
+                $.get('http://localhost:3000/ban-requests', response => {
+                    $('#ban-requests').empty();
+                    response.requests.forEach(request => {
+                        $('#ban-requests').append(`<li class='mt-2'>${request.email} demande une révision. <button class='review-ban text-blue-400' data-email='${request.email}'>Examiner</button></li>`);
+                    });
+                });
+            }
+
+            const ctx = document.getElementById('dashboardChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['Utilisateurs', 'Signalements', 'Actions Modératrices'], datasets: [{ label: 'Statistiques', data: [150, 25, 40], backgroundColor: ['#4F46E5', '#DC2626', '#FBBF24'] }] },
+                options: { responsive: true }
+            });
+
+            loadUsers();
+            loadBanRequests();
+        });
+    </script>
 </body>
 </html>
