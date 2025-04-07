@@ -18,37 +18,39 @@
     </div>
 
     <script>
-        const emailAutorise = 'rod.mtdk.gng@gmail.com';
+        $(document).ready(function () {
+            const emailAutorise = 'rod.mtdk.gng@gmail.com';
 
-        $('#login-btn').click(() => {
-            const email = $('#email').val().trim();
-            $('#error').addClass('hidden').text('');
-            
-            if (!email || !email.includes('@')) {
-                $('#error').removeClass('hidden').text('Veuillez entrer un email valide.');
-                return;
-            }
+            $('#login-btn').click(() => {
+                const email = $('#email').val().trim();
+                $('#error').addClass('hidden').text('');
+                
+                if (!email || !email.includes('@')) {
+                    $('#error').removeClass('hidden').text('Veuillez entrer un email valide.');
+                    return;
+                }
 
-            if (email !== emailAutorise) {
-                $('#error').removeClass('hidden').text('Cet email n\'est pas autorisé.');
-                return;
-            }
+                if (email !== emailAutorise) {
+                    $('#error').removeClass('hidden').text('Cet email n\'est pas autorisé.');
+                    return;
+                }
 
-            $('#loading').removeClass('hidden');
-            $('#login-btn').prop('disabled', true);
+                $('#loading').removeClass('hidden');
+                $('#login-btn').prop('disabled', true);
 
-            $.post('http://localhost:3000/login', { email })
-                .done((response) => {
-                    localStorage.setItem('jwtToken', response.token);
-                    window.location.href = 'index.html';
-                })
-                .fail(() => {
-                    $('#error').removeClass('hidden').text('Erreur serveur. Veuillez réessayer.');
-                })
-                .always(() => {
-                    $('#loading').addClass('hidden');
-                    $('#login-btn').prop('disabled', false);
-                });
+                $.post('http://localhost:3000/login', { email })
+                    .done((response) => {
+                        localStorage.setItem('jwtToken', response.token);
+                        window.location.href = 'index.html';
+                    })
+                    .fail(() => {
+                        $('#error').removeClass('hidden').text('Erreur serveur. Veuillez réessayer.');
+                    })
+                    .always(() => {
+                        $('#loading').addClass('hidden');
+                        $('#login-btn').prop('disabled', false);
+                    });
+            });
         });
     </script>
 </body>
