@@ -1,29 +1,98 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Tableau de bord - NYG-X</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>NYG-X • Tableau de Bord</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle at center, #0f172a, #0b1120);
+      overflow: hidden;
+    }
+    .glass {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .neon {
+      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+    }
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0,255,255, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(0,255,255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,255,255, 0); }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-8">
-    <div class="max-w-2xl mx-auto bg-gray-800 rounded p-6 shadow-md">
-        <h1 class="text-3xl font-bold mb-4">Bienvenue sur NYG-X</h1>
-        <p id="user-info" class="mb-6 text-gray-300">Chargement...</p>
-        <button id="logout-btn" class="bg-red-600 hover:bg-red-700 p-2 rounded">Se déconnecter</button>
+<body class="text-white font-sans flex items-center justify-center min-h-screen px-4">
+  <div class="glass rounded-2xl shadow-xl p-10 w-full max-w-2xl relative">
+    <h1 class="text-3xl font-bold neon mb-4 text-center">Bienvenue sur NYG-X</h1>
+    <p id="user-email" class="text-center text-gray-300 text-lg mb-4">Chargement...</p>
+    
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+      <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl shadow pulse">
+        Se déconnecter
+      </button>
+      <div class="text-sm text-gray-400 text-center">
+        <div>Date : <span id="date-now"></span></div>
+        <div>Session locale active</div>
+      </div>
     </div>
+    
+    <div class="absolute top-0 left-0 w-full h-full pointer-events-none animate-pulse z-0">
+      <canvas id="particles-canvas"></canvas>
+    </div>
+  </div>
 
-    <script>
-        const email = localStorage.getItem("sessionEmail");
-        if (!email || email !== "rod.mtdk.gng@gmail.com") {
-            window.location.href = "connexion.html";
-        } else {
-            document.getElementById("user-info").textContent = `Connecté en tant que : ${email}`;
-        }
+  <script>
+    const email = localStorage.getItem("sessionEmail");
+    if (!email || email !== "rod.mtdk.gng@gmail.com") {
+      window.location.href = "connexion.html";
+    } else {
+      document.getElementById("user-email").textContent = `Connecté en tant que : ${email}`;
+    }
 
-        document.getElementById("logout-btn").addEventListener("click", () => {
-            localStorage.removeItem("sessionEmail");
-            window.location.href = "connexion.html";
-        });
-    </script>
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      localStorage.removeItem("sessionEmail");
+      window.location.href = "connexion.html";
+    });
+
+    document.getElementById("date-now").textContent = new Date().toLocaleDateString('fr-FR');
+
+    // Optionnel : fond animé avec particules
+    const canvas = document.getElementById("particles-canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({length: 60}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 1,
+      dx: Math.random() * 0.6 - 0.3,
+      dy: Math.random() * 0.6 - 0.3
+    }));
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,255,255,0.3)";
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
