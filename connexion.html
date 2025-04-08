@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - NYG-X</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white flex justify-center items-center min-h-screen">
+    <div class="bg-gray-800 p-8 rounded shadow-md w-96">
+        <h2 class="text-2xl mb-4 font-bold">Connexion NYG-X</h2>
+        <label for="email" class="block text-sm mb-1">Email autorisé :</label>
+        <input id="email" type="email" placeholder="Votre email" class="w-full p-2 rounded bg-gray-700 border border-gray-600 mb-4">
+        <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 p-2 rounded">Se connecter</button>
+        <div id="loading" class="hidden text-sm text-center text-gray-400 mt-2">Connexion en cours...</div>
+        <div id="error" class="hidden text-sm text-center text-red-400 mt-2"></div>
+    </div>
+
+    <script>
+        const emailAutorise = "rod.mtdk.gng@gmail.com";
+
+        document.getElementById("login-btn").addEventListener("click", () => {
+            const email = document.getElementById("email").value.trim();
+            const errorDiv = document.getElementById("error");
+            const loading = document.getElementById("loading");
+
+            errorDiv.classList.add("hidden");
+            loading.classList.remove("hidden");
+            loading.textContent = "Connexion en cours...";
+
+            setTimeout(() => {
+                if (!email || !email.includes("@")) {
+                    errorDiv.textContent = "Veuillez entrer un email valide.";
+                    errorDiv.classList.remove("hidden");
+                } else if (email !== emailAutorise) {
+                    errorDiv.textContent = "Cet email n'est pas autorisé.";
+                    errorDiv.classList.remove("hidden");
+                } else {
+                    localStorage.setItem("sessionEmail", email);
+                    loading.textContent = "Connexion réussie. Redirection...";
+                    setTimeout(() => window.location.href = "index.html", 800);
+                }
+                loading.classList.add("hidden");
+            }, 800);
+        });
+
+        document.getElementById("email").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                document.getElementById("login-btn").click();
+            }
+        });
+    </script>
+</body>
+</html>
