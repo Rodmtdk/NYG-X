@@ -6,7 +6,6 @@ const sgMail = require('@sendgrid/mail');
 require('dotenv').config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
@@ -29,8 +28,19 @@ const verifyJWT = (req, res, next) => {
     });
 };
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { email } = req.body;
+
+    if (email !== "rod.mtdk.gng@gmail.com")
+        return res.status(403).send("Email non autorisé.");
+
+    let user = await User.findOne({ email });
+    if (!user) {
+        user = new User({ email });
+        await user.save();
+    }
+    if (user.banned) return res.status(403).send("Utilisateur banni.");
+
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.json({ token });
 });
@@ -43,28 +53,30 @@ app.get('/get-users', verifyJWT, async (req, res) => {
     const filter = req.query.filter || '';
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-
     const query = { email: new RegExp(filter, 'i') };
-
     const users = await User.find(query).skip((page - 1) * limit).limit(limit);
     const total = await User.countDocuments(query);
-
     res.json({ users, total, page, totalPages: Math.ceil(total / limit) });
 });
 
 app.post('/ban-user', verifyJWT, async (req, res) => {
     const { email } = req.body;
     await User.updateOne({ email }, { banned: true });
-
-    const msg = {
-        to: email,
-        from: 'no-reply@nyg-x.com',
-        subject: 'Compte banni - NYG-X',
-        text: 'Votre compte a été banni pour violation des règles.'
-    };
-
-    await sgMail.send(msg);
+    try {
+        await sgMail.send({
+            to: email,
+            from: 'no-reply@nyg-x.com',
+            subject: 'Compte banni - NYG-X',
+            text: 'Votre compte a été banni pour violation des règles.'
+        });
+    } catch (err) {
+        console.error("Erreur envoi mail :", err.message);
+    }
     res.json({ success: true });
 });
 
-app.listen(3000, () => console.log('Serveur actif sur http://localhost:3000'));
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route introuvable' });
+});
+
+app.listen(3000, () => console.log('Serveur NYG-X actif sur http://localhost:3000'));
