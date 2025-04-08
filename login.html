@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Connexion - NYG-X</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white flex justify-center items-center min-h-screen">
     <div class="bg-gray-800 p-8 rounded shadow-md w-96">
@@ -18,39 +16,37 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            const emailAutorise = 'rod.mtdk.gng@gmail.com';
+        const emailAutorise = "rod.mtdk.gng@gmail.com";
 
-            $('#login-btn').click(() => {
-                const email = $('#email').val().trim();
-                $('#error').addClass('hidden').text('');
-                
-                if (!email || !email.includes('@')) {
-                    $('#error').removeClass('hidden').text('Veuillez entrer un email valide.');
-                    return;
+        document.getElementById("login-btn").addEventListener("click", () => {
+            const email = document.getElementById("email").value.trim();
+            const errorDiv = document.getElementById("error");
+            const loading = document.getElementById("loading");
+
+            errorDiv.classList.add("hidden");
+            loading.classList.remove("hidden");
+            loading.textContent = "Connexion en cours...";
+
+            setTimeout(() => {
+                if (!email || !email.includes("@")) {
+                    errorDiv.textContent = "Veuillez entrer un email valide.";
+                    errorDiv.classList.remove("hidden");
+                } else if (email !== emailAutorise) {
+                    errorDiv.textContent = "Cet email n'est pas autorisé.";
+                    errorDiv.classList.remove("hidden");
+                } else {
+                    localStorage.setItem("sessionEmail", email);
+                    loading.textContent = "Connexion réussie. Redirection...";
+                    setTimeout(() => window.location.href = "index.html", 800);
                 }
+                loading.classList.add("hidden");
+            }, 800);
+        });
 
-                if (email !== emailAutorise) {
-                    $('#error').removeClass('hidden').text('Cet email n\'est pas autorisé.');
-                    return;
-                }
-
-                $('#loading').removeClass('hidden');
-                $('#login-btn').prop('disabled', true);
-
-                $.post('http://localhost:3000/login', { email })
-                    .done((response) => {
-                        localStorage.setItem('jwtToken', response.token);
-                        window.location.href = 'index.html';
-                    })
-                    .fail(() => {
-                        $('#error').removeClass('hidden').text('Erreur serveur. Veuillez réessayer.');
-                    })
-                    .always(() => {
-                        $('#loading').addClass('hidden');
-                        $('#login-btn').prop('disabled', false);
-                    });
-            });
+        document.getElementById("email").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                document.getElementById("login-btn").click();
+            }
         });
     </script>
 </body>
