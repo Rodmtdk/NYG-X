@@ -2,112 +2,27 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Membre - NYG-X</title>
+    <title>Tableau de bord - NYG-X</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/framer-motion@6.5.1/dist/framer-motion.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-900 text-white transition-colors duration-300">
-    <header class="p-6 bg-gray-800 shadow-lg">
-        <h1 class="text-3xl font-bold">Bienvenue dans l'espace membre NYG-X</h1>
-        <p class="mt-2">Accédez à votre formation et aux ressources exclusives.</p>
-        <button id="theme-toggle" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded">Changer de thème</button>
-        <button id="logout" class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Déconnexion</button>
-    </header>
-    
-    <main class="p-6">
-        <section id="content" class="mb-10">
-            <h2 class="text-2xl font-semibold">Contenu Exclusif</h2>
-            <p class="mt-2">Voici votre formation sur l'automatisation.</p>
-            <a href="formation.pdf" download class="mt-4 inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Télécharger la formation</a>
-        </section>
-        
-        <section id="moderator-panel" class="bg-gray-800 p-6 rounded shadow-lg">
-            <h2 class="text-2xl font-semibold">Panel de Modération</h2>
-            <div class="flex mt-4">
-                <input type="text" id="filter-user" placeholder="Rechercher un utilisateur..." class="flex-grow p-2 rounded-l bg-gray-700 border border-gray-600">
-                <button id="filter-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-r">Filtrer</button>
-            </div>
-            <ul id="user-list" class="mt-4"></ul>
-            <div class="mt-4">
-                <button id="prev-page" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Précédent</button>
-                <button id="next-page" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Suivant</button>
-                <span id="pagination-info" class="ml-4"></span>
-            </div>
-
-            <h3 class="mt-6 font-semibold">Demandes de Révision de Bannissement <span id="new-requests-badge" class="text-red-500"></span></h3>
-            <ul id="ban-requests" class="mt-2"></ul>
-
-            <h3 class="mt-6 font-semibold">Tableau de Bord en Temps Réel</h3>
-            <canvas id="dashboardChart" class="mt-4"></canvas>
-        </section>
-    </main>
+<body class="bg-gray-900 text-white min-h-screen p-8">
+    <div class="max-w-2xl mx-auto bg-gray-800 rounded p-6 shadow-md">
+        <h1 class="text-3xl font-bold mb-4">Bienvenue sur NYG-X</h1>
+        <p id="user-info" class="mb-6 text-gray-300">Chargement...</p>
+        <button id="logout-btn" class="bg-red-600 hover:bg-red-700 p-2 rounded">Se déconnecter</button>
+    </div>
 
     <script>
-        $(document).ready(function() {
-            const socket = io();
-            const token = localStorage.getItem('jwtToken');
-            if (!token) window.location.href = 'login.html';
+        const email = localStorage.getItem("sessionEmail");
+        if (!email || email !== "rod.mtdk.gng@gmail.com") {
+            window.location.href = "connexion.html";
+        } else {
+            document.getElementById("user-info").textContent = `Connecté en tant que : ${email}`;
+        }
 
-            $.ajaxSetup({ headers: { 'Authorization': 'Bearer ' + token } });
-
-            $('#logout').click(() => {
-                localStorage.removeItem('jwtToken');
-                window.location.href = 'index.html';
-            });
-
-            $('#theme-toggle').click(() => {
-                $('body').toggleClass('bg-gray-900 bg-gray-100');
-                $('body').toggleClass('text-white text-gray-900');
-            });
-
-            let currentPage = 1;
-
-            function loadUsers(filter = "", page = 1) {
-                $.get(`http://localhost:3000/get-users?filter=${filter}&page=${page}&limit=10`, (response) => {
-                    $('#user-list').empty();
-                    response.users.forEach(user => {
-                        $('#user-list').append(`<li class='mt-2'>${user.email} - <button class='ban-user text-red-400' data-email='${user.email}'>🚫 Bannir</button> <button class='warn-user text-yellow-400' data-email='${user.email}'>⚠️ Avertir</button></li>`);
-                    });
-                    $('#pagination-info').text(`Page ${response.page} sur ${response.totalPages}`);
-                    currentPage = response.page;
-                });
-            }
-
-            $('#filter-btn').click(() => {
-                const filterValue = $('#filter-user').val();
-                loadUsers(filterValue, 1);
-            });
-
-            $('#prev-page').click(() => {
-                if (currentPage > 1) loadUsers($('#filter-user').val(), currentPage - 1);
-            });
-
-            $('#next-page').click(() => {
-                loadUsers($('#filter-user').val(), currentPage + 1);
-            });
-
-            function loadBanRequests() {
-                $.get('http://localhost:3000/ban-requests', response => {
-                    $('#ban-requests').empty();
-                    response.requests.forEach(request => {
-                        $('#ban-requests').append(`<li class='mt-2'>${request.email} demande une révision. <button class='review-ban text-blue-400' data-email='${request.email}'>Examiner</button></li>`);
-                    });
-                });
-            }
-
-            const ctx = document.getElementById('dashboardChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['Utilisateurs', 'Signalements', 'Actions Modératrices'], datasets: [{ label: 'Statistiques', data: [150, 25, 40], backgroundColor: ['#4F46E5', '#DC2626', '#FBBF24'] }] },
-                options: { responsive: true }
-            });
-
-            loadUsers();
-            loadBanRequests();
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            localStorage.removeItem("sessionEmail");
+            window.location.href = "connexion.html";
         });
     </script>
 </body>
